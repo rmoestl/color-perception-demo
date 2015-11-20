@@ -16,14 +16,12 @@
 
     #demo-container {
       font-family: monospace;
-      font-size: 1.5em;
+      font-size: 2.5em;
       font-weight: bolder;
     }
 
     #demo-container span {
       color: #BBB;
-      line-height: 2em;
-      margin: 0 0.5em;
     }
 
     #demo-container.highlight span.highlight {
@@ -76,7 +74,7 @@
             } else {
               cssClass = Math.random() > 0.5 ? "warning" : "normal";
             }
-            row = row + " " + "<span class='" + cssClass + "'>" + randomNumber + "</span>";
+            row = row + "<span class='" + cssClass + "'>" + randomNumber + "</span>";
           }
           row = row + "<br/>";
           resultStr = resultStr + row;
@@ -111,8 +109,8 @@
 
       var readInput = function() {
         return {
-          cols: 15,
-          rows: 6,
+          cols: 20,
+          rows: 7,
           highlight: 5,
         };
       }
