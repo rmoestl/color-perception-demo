@@ -5,7 +5,6 @@
   <title>Color Perception Demo expressed with numbers and highlighting or lack thereof</title>
   <style media="screen">
     body {
-      background-color: #FFF;
       color: #333;
       font-family: serif;
       padding-left: 3em;
@@ -16,28 +15,26 @@
     }
 
     #demo-container {
-      color: #BBB;
       font-family: monospace;
       font-size: 1.5em;
       font-weight: bolder;
     }
 
     #demo-container span {
-      margin: 0 0.5em;
+      color: #BBB;
       line-height: 2em;
+      margin: 0 0.5em;
     }
 
-    #demo-container .highlight {
-      color: #96E996;
-      color: #000;
+    #demo-container.highlight span.highlight {
       color: red;
     }
 
-    .color1 {
+    #demo-container.colorful span.normal {
       color: green;
     }
 
-    .color2 {
+    #demo-container.colorful span.warning {
       color: orange;
     }
 
@@ -46,11 +43,18 @@
 <body>
   <div id="demo-input-container">
     <h1>Color Perception Demo</h1>
+    <p>This demo should show that developers need to be careful of how to use colors
+      when visualizing data. This is in particular important when designing and
+      implementing dashboards. Do not use too little color, but also be careful
+      when using too much color (e.g. encoding data with traffic light colors).
+    </p>
+    <p><strong>Try to count the fives in different modes of the demo!</strong>
+    </p>
     <input type="checkbox" id="highlight">
     <label for="highlight">Highlight</label>
     <input type="checkbox" id="colorful">
     <label for="colorful">Colorful</label>
-    <button type="button" id="render">Render</button>
+    <button type="button" id="new-numbers">NEW NUMBERS</button>
   </div>
 
   <div id="demo-container"></div>
@@ -61,25 +65,47 @@
         var resultStr = "",
           row,
           randomNumber,
-          classes;
+          cssClass,
+          demoContainer;
         for (var i = 0; i < input.rows; i++) {
           row = "";
           for (var j = 0; j < input.cols; j++) {
-            // check highlighting
             randomNumber = getRandomInt(0, 9);
-            classes = input.highlight === randomNumber ? "highlight" : "";
-            classes = input.colorful ? classes + " color" + getRandomInt(1, 3) : classes;
-            row = row + " " + "<span class='" + classes + "'>" + randomNumber + "</span>";
+            if (input.highlight === randomNumber) {
+              cssClass = "highlight";
+            } else {
+              cssClass = Math.random() > 0.5 ? "warning" : "normal";
+            }
+            row = row + " " + "<span class='" + cssClass + "'>" + randomNumber + "</span>";
           }
           row = row + "<br/>";
           resultStr = resultStr + row;
         }
-        document.getElementById("demo-container").innerHTML = resultStr;
+        demoContainer = document.getElementById("demo-container");
+        demoContainer.innerHTML = resultStr;
+        if (document.getElementById('highlight').checked) {
+          addClass(demoContainer, 'highlight');
+        }
+        if (document.getElementById('colorful').checked) {
+          addClass(demoContainer, 'colorful');
+        }
       };
 
       var registerActionHandlers = function() {
-        document.getElementById("render").addEventListener('click', function() {
+        document.getElementById("new-numbers").addEventListener('click', function() {
           draw(readInput());
+        });
+        document.getElementById("highlight").addEventListener('change', function(event) {
+          var demoContainerElem = document.getElementById('demo-container');
+          event.target.checked === true
+            ? addClass(demoContainerElem, 'highlight')
+            : removeClass(demoContainerElem, 'highlight')
+        });
+        document.getElementById("colorful").addEventListener('change', function(event) {
+          var demoContainerElem = document.getElementById('demo-container');
+          event.target.checked === true
+            ? addClass(demoContainerElem, 'colorful')
+            : removeClass(demoContainerElem, 'colorful')
         });
       };
 
@@ -87,14 +113,36 @@
         return {
           cols: 15,
           rows: 6,
-          highlight: document.getElementById('highlight').checked ? 5 : -1,
-          colorful:  document.getElementById('colorful').checked
+          highlight: 5,
         };
       }
 
       var getRandomInt = function(min, max) {
         return Math.floor(Math.random() * (max - min)) + min;
       };
+
+      // DOM API helpers
+      function hasClass(elem, className) {
+        var classStr = elem.getAttribute('class');
+        return classStr.indexOf(className) > -1;
+      }
+
+      function removeClass(elem, className) {
+        var classStr = elem.getAttribute('class');
+        if (classStr) {
+          var newClassStr = classStr.replace(className, "");
+          elem.setAttribute('class', newClassStr);
+        }
+      };
+
+      function addClass(elem, className) {
+        var classStr = elem.getAttribute('class');
+        if (classStr === null) {
+          elem.setAttribute('class', className);
+        } else if (classStr.indexOf(className) < 0) {
+          elem.setAttribute('class', classStr + " " + className);
+        }
+      }
 
       draw(readInput());
       registerActionHandlers();
